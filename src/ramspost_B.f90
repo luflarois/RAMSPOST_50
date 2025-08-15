@@ -457,6 +457,7 @@ real :: a(*),b(*),a2(*)
 
 !real, allocatable, save :: c(:),d(:),e(:),f(:)
 real, allocatable :: c(:),d(:),e(:),f(:),g(:)
+real, allocatable :: u(:,:,:),v(:,:,:)
 integer :: lv,lv2,idim_type,irecind,irecsize,irecsizep,ind,ispec
 integer :: memsave4,ierr,kp
 
@@ -481,11 +482,15 @@ if (memsiz4 > memsave4) then
    if (allocated(e)) deallocate (e)
    if (allocated(f)) deallocate (f)
    if (allocated(g)) deallocate (g)
+   if (allocated(u)) deallocate (u)
+   if (allocated(v)) deallocate (v)
    allocate(c(memsiz4))
    allocate(d(memsiz4))
    allocate(e(memsiz4))
    allocate(f(memsiz4))
    allocate(g(memsiz4))
+   allocate(u(n1,n2,n3))
+   allocate(v(n1,n2,n3))   
    memsave4 = memsiz4
 endif
 
@@ -631,7 +636,6 @@ elseif(cvar(1:lv).eq.'ve_avg') then
    call RAMS_comp_avgv(n1,n2,n3,a)
    cdname='ve_avg'
    cdunits='m/s'
-
 elseif(cvar(1:lv).eq.'w') then
    ivar_type=3
    ierr= RAMS_getvar('WP',idim_type,ngrd,a,b,flnm)
@@ -1332,6 +1336,21 @@ elseif(cvar(1:lv).eq.'clear_frac') then
    call cldfraction(n1,n2,n3,a,c,b)
    
    cdname='clear sky'
+   cdunits='frac'
+
+elseif(cvar(1:lv).eq.'cld_cover') then
+   ivar_type=2
+   ierr= RAMS_getvar('RV',idim_type,ngrd,b,a,flnm)
+   ierr= RAMS_getvar('PI',idim_type,ngrd,c,a,flnm)
+   ierr= RAMS_getvar('THETA',idim_type,ngrd,d,a,flnm)
+
+   call RAMS_comp_rh(n1,n2,n3,b,c,d)
+   call RAMS_comp_noneg(n1,n2,n3,b)
+   
+   call cldfraction(n1,n2,n3,a,c,b)
+   call invert_a(n1,n2,n3,a)
+
+   cdname='Cloud cover'
    cdunits='frac'
 
 ! 3D HYDROMETEOR, CCN, CN, Dep N, AND NONHYGROSCOPIC AEROSOL NUMBER CONCEN
@@ -2413,13 +2432,16 @@ elseif(cvar(1:lv).eq.'zdn') then
 
 !DSM{   
 !--- Variaveis 2D do JULES
-elseif(cvar(1:lv).eq.'t2mJ') then
+elseif(cvar(1:lv).eq.'t2mJ' .or. cvar(1:lv).eq.'t2mJc') then
    ivar_type=2
    ierr= RAMS_getvar('T2MJ',idim_type,ngrd,a,b,flnm)
    call undef (n1,n2,n3,a,1,193.0,353.0)
- 
-   cdname='temperature at 1.5m height'
+   cdname='temperature at 2m height'
    cdunits='K'
+   if (cvar(1:lv).eq.'t2mJc') then
+      call k2c(n1,n2,n3,a)
+      cdunits='C'
+   end if
 elseif(cvar(1:lv).eq.'rv2mJ') then
    ivar_type=2
    ierr= RAMS_getvar('RV2MJ',idim_type,ngrd,a,b,flnm)
@@ -6730,6 +6752,24 @@ elseif(cvar(1:lv).eq.'omeg') then
    call calc_omega(n1,n2,n3,a,d)
    cdname='omega'
    cdunits='Pa/s'
+elseif(cvar(1:lv).eq.'magw') then
+   ivar_type=3
+   ierr= RAMS_getvar('UP',idim_type,ngrd,a,b,flnm)
+   call copy_x_to_y(n1,n2,n3,a,u)
+   ierr= RAMS_getvar('VP',idim_type,ngrd,a,b,flnm)
+   call copy_x_to_y(n1,n2,n3,a,v)
+   call magw(n1, n2, n3, u, v, a)
+   cdname='wind magnitude'
+   cdunits='m/s'  
+elseif(cvar(1:lv).eq.'wdir') then
+   ivar_type=3
+   ierr= RAMS_getvar('UP',idim_type,ngrd,a,b,flnm)
+   call copy_x_to_y(n1,n2,n3,a,u)
+   ierr= RAMS_getvar('VP',idim_type,ngrd,a,b,flnm)
+   call copy_x_to_y(n1,n2,n3,a,v)
+   call wdir(n1, n2, n3, u, v, a)
+   cdname='wind direction'
+   cdunits='degrees'
 else
 
    print*,'Variable name not found in hvlib.f - ',cvar(1:lv)
@@ -9093,3 +9133,85 @@ real x,e
    return
 end
 
+subroutine k2c(n1,n2,n3,a)
+   real, parameter :: factor = -273.15
+   real a(n1,n2,n3)
+   integer :: i,j,k
+
+   do k = 1,n3
+      do j = 1,n2
+         do i = 1,n1
+               a(i,j,k) = a(i,j,k)+factor
+         enddo
+      enddo
+   enddo
+end subroutine k2c
+
+subroutine magw(n1, n2, n3, u, v, magnitude)
+    implicit none
+    
+    integer, intent(in) :: n1, n2, n3       
+    real, dimension(n1, n2, n3), intent(in) :: u, v  
+    real, dimension(n1, n2, n3), intent(out) :: magnitude 
+    
+    integer :: i, j, k
+    
+    ! Calcular a magnitude do vento para cada ponto
+    do k = 1, n3
+        do j = 1, n2
+            do i = 1, n1
+                magnitude(i, j, k) = sqrt(u(i, j, k)**2 + v(i, j, k)**2)
+            end do
+        end do
+    end do
+    
+end subroutine magw
+
+subroutine wdir(n1, n2, n3, u, v, dir)
+    implicit none
+    
+    ! Declaração de variáveis
+    integer, intent(in) :: n1, n2, n3                     
+    real, dimension(n1, n2, n3), intent(in) :: u, v       
+    real, dimension(n1, n2, n3), intent(out) :: dir   
+    
+    ! Constantes
+    real, parameter :: PI = 3.14159265358979323846
+    real, parameter :: RAD_TO_DEG = 180.0 / PI
+    
+    ! Variáveis locais
+    integer :: i, j, k
+    real :: dir_rad
+    
+    ! Calcular a direção do vento para cada ponto
+    do k = 1, n3
+        do j = 1, n2
+            do i = 1, n1
+                ! Calcular direção em radianos (intervalo -π a π)
+                dir_rad = atan2(v(i,j,k), u(i,j,k))
+                
+                ! Converter para graus meteorológicos (0° = vento do Norte, 90° = Leste)
+                ! e garantir que está no intervalo [0, 360)
+                dir(i,j,k) = mod(270.0 - dir_rad * RAD_TO_DEG, 360.0)
+                
+                ! Garantir que valores negativos sejam corrigidos
+                if (dir(i,j,k) < 0.0) then
+                    dir(i,j,k) = dir(i,j,k) + 360.0
+                end if
+            end do
+        end do
+    end do
+    
+end subroutine wdir
+
+subroutine invert_a(n1,n2,n3,a)
+   integer, intent(in) :: n1, n2, n3                     
+   real, dimension(n1, n2, n3), intent(inout) :: a
+   do k = 1, n3
+      do j = 1, n2
+         do i = 1, n1
+            a(i,j,k) = 1.0-a(i, j, k)
+         end do
+      end do
+   end do
+end subroutine invert_a
