@@ -462,7 +462,7 @@ integer :: lv,lv2,idim_type,irecind,irecsize,irecsizep,ind,ispec
 integer :: memsave4,ierr,kp
 
 integer, external :: RAMS_getvar, lastchar, irfree, iralloc
-integer :: ierr_getvar,ifound,ivar_type
+integer :: ierr_getvar,ifound,ivar_type, i,j,k
 real  f1(n1,n2,n3),f2(n1,n2,n3),fxx
 common /getvar/ierr_getvar,ifound
 data memsave4/0/
@@ -511,15 +511,22 @@ ifound=0
 if(cvar(1:lv).eq.'u') then
    ivar_type=3
    ierr= RAMS_getvar('UP',idim_type,ngrd,a,b,flnm)
+   call copy_x_to_y(n1,n2,n3,a,u)
+   !do i=1,n1; do j=1,n2
+   !   write(66,*) i,j,u(i,j,1)
+   !enddo;enddo
+   print *,maxval(u),minval(u)
    cdname='u'
    cdunits='m/s'
 
 elseif(cvar(1:lv).eq.'v') then
    ivar_type=3
    ierr= RAMS_getvar('VP',idim_type,ngrd,a,b,flnm)
+   call copy_x_to_y(n1,n2,n3,a,v)
    cdname='v'
    cdunits='m/s'
-   
+   print *,maxval(v),minval(v)
+
 !Incluso por Demerval
 
 !<7/12>elseif(cvar(1:lv).eq.'zitheta') then
@@ -1929,7 +1936,8 @@ elseif(cvar(1:lv).eq.'accph') then
    cdunits='kg/m2'
 
 elseif(cvar(1:lv).eq.'totpcp' .or. cvar(1:lv).eq.'totpcp_in' .or.  &
-       cvar(1:lv).eq.'precip' .or. cvar(1:lv).eq.'precip_in') then
+       cvar(1:lv).eq.'precip' .or. cvar(1:lv).eq.'precip_in' .or. &
+       cvar(1:lv).eq.'totprec') then
    ivar_type=2
    call RAMS_comp_zero(n1,n2,1,a)
 
@@ -1954,15 +1962,19 @@ elseif(cvar(1:lv).eq.'totpcp' .or. cvar(1:lv).eq.'totpcp_in' .or.  &
       ierr= RAMS_getvar('ACONPR',idim_type,ngrd,c,b,flnm)
       if(ierr.eq.0) call RAMS_comp_accum(n1,n2,1,a,c)
       cdname='total accum precip'
-   else
+   elseif (cvar(1:lv).eq.'totpcp') then
       cdname='total resolved precip'
+   else
+      cdname='total pcp rate in [time-1,time]'
    endif
 
    if(cvar(1:lv).eq.'totpcp'.or.cvar(1:lv).eq.'precip') then
       cdunits='mm liq'
-   else
+   elseif (cvar(1:lv).eq.'totpcp') then
       call RAMS_comp_mults(n1,n2,n3,a,.03937)
       cdunits='in liq'
+   else
+      cdunits='mm/h'
    endif
    call RAMS_comp_noneg(n1,n2,1,a)
 
