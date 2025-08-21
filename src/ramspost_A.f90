@@ -456,7 +456,7 @@ program ramspost
                     call date1(ifdates(nfn), iyear, imon, idate)
                     call makefnam(wfln(nfn), gprefix(1:ic)//'-template'//' ', 0, iyear, imon, idate, &
                                   iftimes(nfn), 'A', 'g'//cgrid, 'ctl')
-                    open (iunit + 1, file=wfln(nfn), status='unknown')
+                    open (iunit + 1, file=wfln(nfn), status='replace')
 ! valido somente para hora cheia  --------------------------------------vvvv-
                     write (iunit + 1, 2001) '^'//gprefix(1:ic)//'-A-'//'%y4-%m2-%d2-%h20000-'//'g'//cgrid//'.gra'
                     write (iunit + 1, 2002) 'options template'
@@ -467,10 +467,10 @@ program ramspost
                 call date1(ifdates(nfn), iyear, imon, idate)
                 call makefnam(wfln(nfn), gprefix(1:ic)//' ', 0, iyear, imon, idate, &
                               iftimes(nfn), 'A', 'g'//cgrid, 'ctl')
-                inquire (file=wfln(nfn), exist=there)
-                if (there .and. nfn > 1) cycle
+                !inquire (file=wfln(nfn), exist=there)
+                !if (there .and. nfn > 1) cycle
 
-                open (iunit, file=wfln(nfn), status='unknown')
+                open (iunit, file=wfln(nfn), status='replace')
                 write (iunit, 2001) '^'//wfln(nfn) (1:lastchar(wfln(nfn)) - 3)//'gra'
 
             end if
@@ -499,11 +499,11 @@ program ramspost
                         write (iunit, 2055) (dep_zlev(i, ng), i=16, zlevmax(ng) + 1)
                     end if
                 end if
-! case 1
+print *,'case 1'
                 if (anl2gra(1:ianl2gra) /= 'ONE' .and. anl2gra(1:ianl2gra) /= 'one' .and. &
                     nfn == 1) then
                     write (iunit, 2006) nfiles, chdate, chstep
-! case 2
+print *,'case 2'
                 elseif (anl2gra(1:ianl2gra) == 'ONE' .or. anl2gra(1:ianl2gra) == 'one') then
 
                     !call RAMS_get_time_init(nfn,iyear,imonth,idate,ihour,imin)
@@ -520,7 +520,7 @@ program ramspost
                     if (iunitf == iuniti + 1) write (iunit, 2006) nfiles, chdate, chstep ! para template
 
                 end if
-!----
+print *,'!----'
 
                 write (iunit, 2007) nnvp
                 do i = 1, nvp
@@ -566,15 +566,15 @@ program ramspost
                 close (iunit)
 
             end do ! enddo nas unidades de escrita
-
+print *,'! enddo nas unidades de escrita'
 !     endif
 
             if (anl2gra(1:ianl2gra) /= 'ONE' .and. &
                 nfn == 1) exit
         end do ! enddo do NFILES
-
+print *,'! enddo do NFILES'
     end do  !enddo do NGRIDS
-
+print *,'! enddo do NGRIDS'
 2001 format('dset ', a)
 2002 format(a)
 2022 format("title ", a)
@@ -586,7 +586,7 @@ program ramspost
 2008 format(a16, i4, ' 99    - RAMS : ', a40, '[', a8, ']')
 2055 format(60f7.0)
     close (iunit + 1)
-    stop
+    !stop
 end program ramspost
 
 ! ---------------------------------------------------------------

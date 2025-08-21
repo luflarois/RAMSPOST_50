@@ -6766,20 +6766,20 @@ elseif(cvar(1:lv).eq.'omeg') then
    cdunits='Pa/s'
 elseif(cvar(1:lv).eq.'magw') then
    ivar_type=3
-   ierr= RAMS_getvar('UP',idim_type,ngrd,a,b,flnm)
-   call copy_x_to_y(n1,n2,n3,a,u)
-   ierr= RAMS_getvar('VP',idim_type,ngrd,a,b,flnm)
-   call copy_x_to_y(n1,n2,n3,a,v)
-   call magw(n1, n2, n3, u, v, a)
+   ierr= RAMS_getvar('UP',idim_type,ngrd,e,b,flnm)
+   !call copy_x_to_y(n1,n2,n3,a,u)
+   ierr= RAMS_getvar('VP',idim_type,ngrd,f,b,flnm)
+   !call copy_x_to_y(n1,n2,n3,a,v)
+   call magw(n1, n2, n3, e, f, a)
    cdname='wind magnitude'
    cdunits='m/s'  
 elseif(cvar(1:lv).eq.'wdir') then
    ivar_type=3
-   ierr= RAMS_getvar('UP',idim_type,ngrd,a,b,flnm)
-   call copy_x_to_y(n1,n2,n3,a,u)
-   ierr= RAMS_getvar('VP',idim_type,ngrd,a,b,flnm)
-   call copy_x_to_y(n1,n2,n3,a,v)
-   call wdir(n1, n2, n3, u, v, a)
+   ierr= RAMS_getvar('UP',idim_type,ngrd,e,b,flnm)
+   !call copy_x_to_y(n1,n2,n3,a,u)
+   ierr= RAMS_getvar('VP',idim_type,ngrd,f,b,flnm)
+   !call copy_x_to_y(n1,n2,n3,a,v)
+   call wdir(n1, n2, n3, e, f, a)
    cdname='wind direction'
    cdunits='degrees'
 else
