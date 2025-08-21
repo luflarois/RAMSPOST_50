@@ -218,13 +218,13 @@ end
            zlev(*),zplev(nx,ny,20),ztop,amop(nx,ny)
       integer nx,ny,nz,nplev,iplev(20)
 
-!  salva campo em k=2 para uso em comparacao com MOPITT
+      !  salva campo em k=2 para uso em comparacao com MOPITT
       if(iplev(1) == 9999) amop(:,:)=  a(:,:,2)   
       !print*,nx,ny,nz,nplev,iplev
       
       do i=1,nplev
         b(nplev-i+1,4)=1004.*(float(iplev(i))/1000.)**.286
-!	print*,'1',i,b(nplev-i+1,4),iplev(i)	
+        !	print*,'1',i,b(nplev-i+1,4),iplev(i)	
       enddo
 
 !      do k=1,nz
@@ -238,27 +238,23 @@ end
             kk=nz-k+1
             b(kk,1)=a(i,j,k)
             b(kk,2)=pi(i,j,k)
-	    !print*,'2',i,j,k,pi(i,j,k)
+	          !print*,'2',i,j,k,pi(i,j,k)
           enddo
           call htint(nz,b(1,1),b(1,2),nplev,b(1,3),b(1,4))
           do k=1,nplev
             if(b(k,4) > pi(i,j,1)) then
-	     a(i,j,nplev-k+1)=-9.99e33
-	    else
-!	    if(b(k,3) < 0) print*,i,j,k,a(i,j,k),b(k,3),pi(i,j,k),b(k,4)
-             a(i,j,nplev-k+1)=b(k,3)
-	    endif
- 
+	            a(i,j,nplev-k+1)=-9.99e33
+	          else
+              !	    if(b(k,3) < 0) print*,i,j,k,a(i,j,k),b(k,3),pi(i,j,k),b(k,4)
+              a(i,j,nplev-k+1)=b(k,3)
+	          endif
           enddo
-	  
         enddo
       enddo
 
 ! tratamento especial para produto do MOPITT
        if(iplev(1) == 9999) a(:,:,1)=amop(:,:)
          
-
-
 !      stop 333
       return
       end
@@ -503,7 +499,7 @@ end
       
       
 !************************************************************************
-!*  Esta função calcula a CINE de uma determinada sondagem              *
+!*  Esta funï¿½ï¿½o calcula a CINE de uma determinada sondagem              *
 !************************************************************************
       real function calccine(num,i0,pres,temp,urel,erro0,indef)
        implicit none !Tens de declarar tudo...
@@ -523,7 +519,7 @@ end
            calccine=indef
            return
        endif
-!* Tomo os primeiros valores, para depois jogá-los aos valores velhos...
+!* Tomo os primeiros valores, para depois jogï¿½-los aos valores velhos...
        pncl0=presdoncl(pres(i0),temp(i0),urel(i0),indef)
        rmis0=razaodemistura(pres(i0),temp(i0),urel(i0),indef)
        tpot0=potencial(pres(i0),temp(i0)+273.16,rmis0,indef)
@@ -532,19 +528,19 @@ end
        tamb=temp(i0)+273.16
        ramb=razaodemistura(pres2,tamb-273.16,urel(i0),indef)
        tvamb=tempvirtual(pres2,tamb,ramb,indef)
-       tpar2=temp(i0)+273.16 !Começa com mesma temperatura do ambiente
-       rpar2=rmis0           !Começa com mesmo rmis do ambiente
+       tpar2=temp(i0)+273.16 !Comeï¿½a com mesma temperatura do ambiente
+       rpar2=rmis0           !Comeï¿½a com mesmo rmis do ambiente
        tvpar=tempvirtual(pres2,tpar2,rpar2,indef)
        inte2=0.
        i=i0+1
        do while (.not.fim.and.i.le.num)
          if (pres(i).ne.indef.and.temp(i).ne.indef.and.urel(i).ne.indef)then
-! Passo os valores de algumas variáveis para o valor "velho"
+! Passo os valores de algumas variï¿½veis para o valor "velho"
              pres1=pres2
              tpar1=tpar2
              rpar1=rpar2
              inte1=inte2
-! Recalculo estas variáveis e calculo a contribuição para o CINE
+! Recalculo estas variï¿½veis e calculo a contribuiï¿½ï¿½o para o CINE
              pres2=pres(i)
              tamb=temp(i)+273.16
              ramb=razaodemistura(pres2,tamb-273.16,urel(i),indef)
@@ -561,7 +557,7 @@ end
          endif 
          i=i+1
        enddo
-!   Caso tenha acabado até aqui, indefini-lo-ei, pois na realidade ele
+!   Caso tenha acabado atï¿½ aqui, indefini-lo-ei, pois na realidade ele
 ! vale infinito.....
        if (.not.fim) cine=indef 
        calccine=cine
@@ -573,7 +569,7 @@ end
 
 
 !***********************************************************************
-!  Esta função calcula o NCE de uma determinada sondagem               *
+!  Esta funï¿½ï¿½o calcula o NCE de uma determinada sondagem               *
 !***********************************************************************
        real function calcnce(num,i0,pres,temp,urel,erro0,indef)
        implicit none !Tens de declarar tudo...
@@ -593,7 +589,7 @@ end
            nce=indef
            return
        endif
-! Tomo os primeiros valores, para depois jogá-los aos valores velhos...
+! Tomo os primeiros valores, para depois jogï¿½-los aos valores velhos...
        pncl0=presdoncl(pres(i0),temp(i0),urel(i0),indef)
        rmis0=razaodemistura(pres(i0),temp(i0),urel(i0),indef)
        tpot0=potencial(pres(i0),temp(i0)+273.16,rmis0,indef)
@@ -602,17 +598,17 @@ end
        tamb=temp(i0)+273.16
        ramb=razaodemistura(pres2,tamb-273.16,urel(i0),indef)
        tvamb=tempvirtual(pres2,tamb,ramb,indef)
-       tpar2=temp(i0)+273.16 !Começa com mesma temperatura do ambiente
-       rpar2=rmis0           !Começa com mesmo rmis do ambiente
+       tpar2=temp(i0)+273.16 !Comeï¿½a com mesma temperatura do ambiente
+       rpar2=rmis0           !Comeï¿½a com mesmo rmis do ambiente
        tvpar=tempvirtual(pres2,tpar2,rpar2,indef)
        i=i0+1
        do while (.not.fim.and.i.le.num)
          if (pres(i).ne.indef.and.temp(i).ne.indef.and.urel(i).ne.indef)then
-! Passo os valores de algumas variáveis para o valor "velho"
+! Passo os valores de algumas variï¿½veis para o valor "velho"
              pres1=pres2
              tpar1=tpar2
              rpar1=rpar2
-! Recalculo estas variáveis e calculo a contribuição para o CINE
+! Recalculo estas variï¿½veis e calculo a contribuiï¿½ï¿½o para o CINE
              pres2=pres(i)
              tamb=temp(i)+273.16
              ramb=razaodemistura(pres2,tamb-273.16,urel(i),indef)
@@ -627,7 +623,7 @@ end
          endif 
          i=i+1
        enddo
-!*   Caso tenha acabado até aqui, zero-o, numa forma de dizer que é inatingível
+!*   Caso tenha acabado atï¿½ aqui, zero-o, numa forma de dizer que ï¿½ inatingï¿½vel
        if (.not.fim) nce=0.
        calcnce=nce
        return
@@ -638,7 +634,7 @@ end
 
 
 !************************************************************************
-!*  Esta função calcula a CAPE de uma determinada sondagem              *
+!*  Esta funï¿½ï¿½o calcula a CAPE de uma determinada sondagem              *
 !************************************************************************
       real function calccape(num,i0,pres,temp,urel,erro0,indef)
        implicit none !Tens de declarar tudo...
@@ -659,7 +655,7 @@ end
            calccape=indef
            return
        endif
-!* Tomo os primeiros valores, para depois jogá-los aos valores velhos...
+!* Tomo os primeiros valores, para depois jogï¿½-los aos valores velhos...
        pncl0=presdoncl(pres(i0),temp(i0),urel(i0),indef)
        rmis0=razaodemistura(pres(i0),temp(i0),urel(i0),indef)
        tpot0=potencial(pres(i0),temp(i0)+273.16,rmis0,indef)
@@ -668,19 +664,19 @@ end
        tamb=temp(i0)+273.16
        ramb=razaodemistura(pres2,tamb-273.16,urel(i0),indef)
        tvamb=tempvirtual(pres2,tamb,ramb,indef)
-       tpar2=temp(i0)+273.16 !Começa com mesma temperatura do ambiente
-       rpar2=rmis0           !Começa com mesmo rmis do ambiente
+       tpar2=temp(i0)+273.16 !Comeï¿½a com mesma temperatura do ambiente
+       rpar2=rmis0           !Comeï¿½a com mesmo rmis do ambiente
        tvpar=tempvirtual(pres2,tpar2,rpar2,indef)
        inte2=0.
        i=i0+1
        do while (.not.fim.and.i.le.num)
          if (pres(i).ne.indef.and.temp(i).ne.indef.and.urel(i).ne.indef)then
-!* Passo os valores de algumas variáveis para o valor "velho"
+!* Passo os valores de algumas variï¿½veis para o valor "velho"
              pres1=pres2
              tpar1=tpar2
              rpar1=rpar2
              inte1=inte2
-!* Recalculo estas variáveis e calculo a contribuição para o CINE
+!* Recalculo estas variï¿½veis e calculo a contribuiï¿½ï¿½o para o CINE
              pres2=pres(i)
              tamb=temp(i)+273.16
              ramb=razaodemistura(pres2,tamb-273.16,urel(i),indef)
@@ -698,7 +694,7 @@ end
          endif 
          i=i+1
        enddo
-!*   Caso tenha acabado até aqui, indefini-lo-ei, pois na realidade ele
+!*   Caso tenha acabado atï¿½ aqui, indefini-lo-ei, pois na realidade ele
 !* vale infinito.....
        if (.not.fim) cape=0.
        calccape=cape
@@ -710,7 +706,7 @@ end
 
 
 !************************************************************************
-!*  Esta função calcula o NPE de uma determinada sondagem		*
+!*  Esta funï¿½ï¿½o calcula o NPE de uma determinada sondagem		*
 !************************************************************************
       real function calcnpe(num,i0,pres,temp,urel,erro0,indef)
        implicit none !Tens de declarar tudo...
@@ -731,7 +727,7 @@ end
            calcnpe=indef
            return
        endif
-!* Tomo os primeiros valores, para depois jogá-los aos valores velhos...
+!* Tomo os primeiros valores, para depois jogï¿½-los aos valores velhos...
        pncl0=presdoncl(pres(i0),temp(i0),urel(i0),indef)
        rmis0=razaodemistura(pres(i0),temp(i0),urel(i0),indef)
        tpot0=potencial(pres(i0),temp(i0)+273.16,rmis0,indef)
@@ -740,18 +736,18 @@ end
        tamb=temp(i0)+273.16
        ramb=razaodemistura(pres2,tamb-273.16,urel(i0),indef)
        tvamb=tempvirtual(pres2,tamb,ramb,indef)
-       tpar2=temp(i0)+273.16 !Começa com mesma temperatura do ambiente
-       rpar2=rmis0           !Começa com mesmo rmis do ambiente
+       tpar2=temp(i0)+273.16 !Comeï¿½a com mesma temperatura do ambiente
+       rpar2=rmis0           !Comeï¿½a com mesmo rmis do ambiente
        tvpar=tempvirtual(pres2,tpar2,rpar2,indef)
        inte2=0.
        i=i0+1
        do while (.not.fim.and.i.le.num)
          if (pres(i).ne.indef.and.temp(i).ne.indef.and.urel(i).ne.indef)then
-!* Passo os valores de algumas variáveis para o valor "velho"
+!* Passo os valores de algumas variï¿½veis para o valor "velho"
              pres1=pres2
              tpar1=tpar2
              rpar1=rpar2
-!* Recalculo estas variáveis e calculo a contribuição para o CINE
+!* Recalculo estas variï¿½veis e calculo a contribuiï¿½ï¿½o para o CINE
              pres2=pres(i)
              tamb=temp(i)+273.16
              ramb=razaodemistura(pres2,tamb-273.16,urel(i),indef)
@@ -768,7 +764,7 @@ end
          endif 
          i=i+1
        enddo
-!*   Caso tenha acabado até aqui, indefini-lo-ei, pois na realidade ele
+!*   Caso tenha acabado atï¿½ aqui, indefini-lo-ei, pois na realidade ele
 !* vale infinito.....
        if (.not.fim) npe=indef
        calcnpe=npe
@@ -782,7 +778,7 @@ end
 
 
 !************************************************************************
-!* Função que calcula a pressão do NCL a partir de p,T,Urel		*
+!* Funï¿½ï¿½o que calcula a pressï¿½o do NCL a partir de p,T,Urel		*
 !************************************************************************  
       real function presdoncl(pres0,temp0,urel0,indef)
        implicit none !Tens de declarar tudo....
@@ -802,7 +798,7 @@ end
 !
 !
 !************************************************************************
-!* Função que calcula a temperatura virtual do ar                       *
+!* Funï¿½ï¿½o que calcula a temperatura virtual do ar                       *
 !************************************************************************
       real function tempvirtual(pres0,temp0,rmis0,indef)
        implicit none !Tens de declarar tudo....
@@ -820,7 +816,7 @@ end
 !
 !
 !************************************************************************
-!* Função que calcula a razão de mistura em kg/kg                       *
+!* Funï¿½ï¿½o que calcula a razï¿½o de mistura em kg/kg                       *
 !************************************************************************
       real function razaodemistura(pres0,temp0,urel0,indef)
        implicit none !Tens de declarar tudo....
@@ -838,7 +834,7 @@ end
 !
 !
 !************************************************************************
-!* Função que calcula a temperatura potencial da parcela                *
+!* Funï¿½ï¿½o que calcula a temperatura potencial da parcela                *
 !************************************************************************
       real function potencial(pres0,temp0,rmis0,indef)
        implicit none !Tens de declarar tudo
@@ -857,7 +853,7 @@ end
 
 
 !************************************************************************
-!* Função que calcula a temperatura potencial equivalente da parcela    *
+!* Funï¿½ï¿½o que calcula a temperatura potencial equivalente da parcela    *
 !************************************************************************
       real function potencialeq(pres0,temp0,rmis0,indef)
        implicit none !Tens de declarar tudo...
@@ -876,7 +872,7 @@ end
       end
 
 !************************************************************************
-!* Função iterativa que calcula a temperatura da parcela                *
+!* Funï¿½ï¿½o iterativa que calcula a temperatura da parcela                *
 !************************************************************************
       real function tparcela(pres0,pncl0,tpot0,tpeq0,rmis0,erro0,indef)
        implicit none !Tens de declarar tudo...
@@ -888,17 +884,17 @@ end
        erro=2.*erro0
        if (pres0.eq.indef.or.pncl0.eq.indef) then
            tparnovo=indef
-         elseif(pncl0.eq.0.) then !Pressão do NCL inatingível
+         elseif(pncl0.eq.0.) then !Pressï¿½o do NCL inatingï¿½vel
            tparnovo=indef
          elseif(pres0.gt.pncl0) then !Iterage com temperatura potencial
            do while (erro.gt.erro0)
              tparm0=tparnovo
              tparm1=tparm0+1.
-             rsatm0=1000.*rmis0 !Só por via das dúvidas
+             rsatm0=1000.*rmis0 !Sï¿½ por via das dï¿½vidas
              tpotm0=tparm0*((1000./pres0)**(0.2854*(1-0.28e-3*rsatm0)))
              tpotm1=tparm1*((1000./pres0)**(0.2854*(1-0.28e-3*rsatm0)))
              tparnovo=tparm0+(tpot0-tpotm0)/(tpotm1-tpotm0)
-             erro=200.*(tparnovo-tparm0)/(tparnovo+tparm0) !O erro está em %
+             erro=200.*(tparnovo-tparm0)/(tparnovo+tparm0) !O erro estï¿½ em %
            enddo           
          else !Iterage com temperatura potencial equivalente
            do while (erro.gt.erro0)
@@ -913,7 +909,7 @@ end
              tpeqm0=tpotm0*exp((3.376/tparm0-0.00254)*rsatm0*(1+0.81e-3*rsatm0))
              tpeqm1=tpotm1*exp((3.376/tparm1-0.00254)*rsatm1*(1+0.81e-3*rsatm1))
              tparnovo=tparm0+(tpeq0-tpeqm0)/(tpeqm1-tpeqm0)
-             erro=abs(200.*(tparnovo-tparm0)/(tparnovo+tparm0)) !O erro está em %
+             erro=abs(200.*(tparnovo-tparm0)/(tparnovo+tparm0)) !O erro estï¿½ em %
            enddo
        endif
        tparcela=tparnovo
@@ -921,7 +917,7 @@ end
       end
 
 !************************************************************************
-!* Função que calcula a razão de mistura da parcela                     *
+!* Funï¿½ï¿½o que calcula a razï¿½o de mistura da parcela                     *
 !************************************************************************
       real function rparcela(pres0,pncl0,rmis0,tpar,indef)
        implicit none !Tens de declarar tudo...
@@ -938,7 +934,7 @@ end
 
 
 !************************************************************************
-!* Função que calcula o termo integrando da CINE e CAPE                 *
+!* Funï¿½ï¿½o que calcula o termo integrando da CINE e CAPE                 *
 !************************************************************************
       real function integrando(tvamb,tvpar,indef)
        implicit none !Tens de declarar tudo....

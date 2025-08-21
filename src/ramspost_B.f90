@@ -8468,7 +8468,7 @@ kappai = (1./.286)
 
 
 allocate (rhc(n3),cs(n3) )
-      print*,'+++++++:',n1,n2,n3
+!      print*,'+++++++:',n1,n2,n3
 
 do j=1,n2
    do i=1,n1
@@ -8497,7 +8497,7 @@ do j=1,n2
             kmax = k
          endif
          frac(i,j) = frac(i,j) + cs(k)*(1./float(k))
-      if(i==20.and.j==20) print*,'+++++++:',k,pi(i,j,k),rh(i,j,k),frac(i,j)
+      !if(i==20.and.j==20) print*,'+++++++:',k,pi(i,j,k),rh(i,j,k),frac(i,j)
       enddo
       
       csmax=max(csmax,0.)
